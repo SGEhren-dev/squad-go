@@ -38,8 +38,7 @@ func (plugin *FogOfWarPlugin) Boot() {
 		for {
 			select {
 			case <-plugin.tickerHandle.C:
-				// plugin.SquadServer.Rcon.Execute(fmt.Sprintf("AdminSetFogOfWar %s", plugin.GetSettings()["mode"]))
-				plugin.LogWithPrefix(fmt.Sprintf("AdminSetFogOfWar %v", plugin.GetSettings()["mode"].(float64)))
+				plugin.SquadServer.Rcon.Execute(fmt.Sprintf("AdminSetFogOfWar %v", plugin.GetSettings()["mode"].(float64)))
 			case <-plugin.tickerChannel:
 				plugin.tickerHandle.Stop()
 				return

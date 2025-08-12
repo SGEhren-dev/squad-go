@@ -41,7 +41,7 @@ func (plugin *AutomatedBroadcastPlugin) Boot() {
 		for {
 			select {
 			case <-plugin.tickerHandle.C:
-				plugin.LogWithPrefix(fmt.Sprintf("AdminBroadcast %s", messages[lastDispatched]))
+				plugin.SquadServer.Rcon.Execute(fmt.Sprintf("AdminBroadcast %s", messages[lastDispatched]))
 
 				if lastDispatched+1 >= len(messages) {
 					lastDispatched = 0

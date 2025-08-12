@@ -15,7 +15,7 @@ import (
 )
 
 type SquadServer struct {
-	Config   *configuration.Config
+	Config   configuration.Config
 	Database *gorm.DB
 	Emitter  eventEmitter.EventEmitter
 	Parser   *parser.LogParser
@@ -25,9 +25,12 @@ type SquadServer struct {
 }
 
 func NewSquadServer() *SquadServer {
-	config := configuration.Config{}
+	squadServer := SquadServer{
+		Config:  configuration.Config{},
+		Emitter: eventEmitter.NewEventEmitter(),
+	}
 
-	err := config.LoadConfig()
+	err := squadServer.Config.LoadConfig()
 
 	if err != nil {
 		log.Error("Failed to create SquadServer due to config failure.")
@@ -35,10 +38,7 @@ func NewSquadServer() *SquadServer {
 		return nil
 	}
 
-	squadServer := SquadServer{
-		Config:  &config,
-		Emitter: eventEmitter.NewEventEmitter(),
-	}
+	log.Info("Configuration loaded, starting Squad Server")
 
 	return &squadServer
 }
@@ -50,8 +50,8 @@ func (server *SquadServer) Boot() {
 	server.manager = NewPluginManager(server)
 
 	server.setupDatabase()
-	server.manager.BootAll()
 	server.setupRcon()
+	server.manager.BootAll()
 	server.Parser.ParseLogFile(server.Config.LogFilePath)
 }
 
@@ -81,9 +81,7 @@ func (server *SquadServer) setupDatabase() {
 			db, err := gorm.Open(sqlite.Open(database+".db"), &gorm.Config{})
 
 			if err != nil {
-				log.Error(err.Error())
-
-				return
+				panic(err)
 			}
 
 			server.Database = db
@@ -101,9 +99,7 @@ func (server *SquadServer) setupDatabase() {
 			db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 			if err != nil {
-				log.Error(err.Error())
-
-				return
+				panic(err)
 			}
 
 			server.Database = db
@@ -119,12 +115,6 @@ func (server *SquadServer) setupDatabase() {
 func (server *SquadServer) setupRcon() {
 	log.WithPrefix("[RCON]").Info("Setting up RCON connection...")
 
-	if server.Config == nil {
-		log.WithPrefix("[RCON]").Warn("Configuration is not loaded, skipping RCON setup.")
-
-		return
-	}
-
 	rconHandle, err := rcon.NewRcon(rcon.RconConfig{
 		Host:               server.Config.Rcon.Host,
 		Port:               server.Config.Rcon.Port,
@@ -134,9 +124,7 @@ func (server *SquadServer) setupRcon() {
 	})
 
 	if err != nil {
-		log.WithPrefix("[RCON]").Error("Error setting up RCON: " + err.Error())
-
-		return
+		panic(err)
 	}
 
 	server.Rcon = rconHandle
