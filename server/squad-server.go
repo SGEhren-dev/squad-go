@@ -20,7 +20,7 @@ type SquadServer struct {
 	Emitter  eventEmitter.EventEmitter
 	Parser   *parser.LogParser
 	Players  map[string][]any
-	manager  PluginManager
+	manager  *PluginManager
 	Rcon     *rcon.Rcon
 }
 
@@ -47,11 +47,13 @@ func (server *SquadServer) Boot() {
 	log.Info("Booting Squad Server...")
 
 	server.Parser = parser.NewLogParser()
-	server.manager = NewPluginManager(server)
+	server.manager = &PluginManager{}
+
+	server.manager.Load(server)
 
 	server.setupDatabase()
 	server.setupRcon()
-	server.manager.BootAll()
+	server.manager.Boot()
 	server.Parser.ParseLogFile(server.Config.LogFilePath)
 }
 
@@ -81,7 +83,9 @@ func (server *SquadServer) setupDatabase() {
 			db, err := gorm.Open(sqlite.Open(database+".db"), &gorm.Config{})
 
 			if err != nil {
-				panic(err)
+				log.Error("Failed to initialize Database.")
+
+				return
 			}
 
 			server.Database = db
@@ -99,7 +103,9 @@ func (server *SquadServer) setupDatabase() {
 			db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 			if err != nil {
-				panic(err)
+				log.Error("Failed to initialize Database.")
+
+				return
 			}
 
 			server.Database = db
@@ -124,7 +130,9 @@ func (server *SquadServer) setupRcon() {
 	})
 
 	if err != nil {
-		panic(err)
+		log.Error("Failed to setup RCON.")
+
+		return
 	}
 
 	server.Rcon = rconHandle

@@ -1,6 +1,8 @@
 package server
 
-import "github.com/charmbracelet/log"
+import (
+	"github.com/charmbracelet/log"
+)
 
 type Plugin struct {
 	Enabled     bool
@@ -27,16 +29,6 @@ func (plugin *Plugin) Shutdown() {}
 
 func (plugin *Plugin) GetBase() *Plugin {
 	return plugin
-}
-
-func (plugin *Plugin) GetSettings() map[string]any {
-	for _, confPlugin := range plugin.SquadServer.Config.Plugins {
-		if plugin.Name == confPlugin.Name {
-			return confPlugin.Settings
-		}
-	}
-
-	return nil
 }
 
 func (plugin *Plugin) SetSquadServer(server *SquadServer) {

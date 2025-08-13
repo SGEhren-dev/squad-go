@@ -1,44 +1,57 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 )
 
+type FogOfWarSettings struct {
+	Delay float64 `json:"delay"`
+	Mode  float64 `json:"mode"`
+}
+
 type FogOfWarPlugin struct {
 	Plugin
+	settings      FogOfWarSettings
 	tickerHandle  *time.Ticker
 	tickerChannel chan bool
 }
 
-func NewFogOfWarPlugin(server *SquadServer) *FogOfWarPlugin {
-	return &FogOfWarPlugin{
-		Plugin: Plugin{
-			Enabled:     true,
-			Name:        "FogOfWar",
-			Description: "Automate setting the FogOfWar mode.",
-			SquadServer: server,
-		},
-		tickerHandle:  nil,
-		tickerChannel: nil,
-	}
+func init() {
+	var name string = "FogOfWar"
+
+	RegisterPlugin(name, func(server *SquadServer, rawSettings json.RawMessage) IPlugin {
+		var settings FogOfWarSettings
+
+		if err := json.Unmarshal(rawSettings, &settings); err != nil {
+			return nil
+		}
+
+		return &FogOfWarPlugin{
+			Plugin: Plugin{
+				Name:        name,
+				Description: "Automatically sets the FogOfWar to the given mode after a delay.",
+				SquadServer: server,
+			},
+			settings:      settings,
+			tickerHandle:  nil,
+			tickerChannel: make(chan bool),
+		}
+	})
 }
 
 func (plugin *FogOfWarPlugin) Boot() {
-	delay, ok := plugin.GetSettings()["delay"].(float64)
-
-	if !ok {
-		return
-	}
-
-	plugin.tickerHandle = time.NewTicker(time.Duration(delay) * time.Second)
+	plugin.tickerHandle = time.NewTicker(time.Duration(plugin.settings.Delay) * time.Second)
 	plugin.tickerChannel = make(chan bool)
 
 	go func() {
 		for {
 			select {
 			case <-plugin.tickerHandle.C:
-				plugin.SquadServer.Rcon.Execute(fmt.Sprintf("AdminSetFogOfWar %v", plugin.GetSettings()["mode"].(float64)))
+				if plugin.SquadServer.Rcon != nil {
+					plugin.SquadServer.Rcon.Execute(fmt.Sprintf("AdminSetFogOfWar %v", plugin.settings.Mode))
+				}
 			case <-plugin.tickerChannel:
 				plugin.tickerHandle.Stop()
 				return

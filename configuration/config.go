@@ -22,11 +22,9 @@ type Config struct {
 		Port     string `json:"port"`
 		Password string `json:"password"`
 	} `json:"rcon"`
-	Plugins []struct {
-		Enabled     bool           `json:"enabled"`
-		Name        string         `json:"name"`
-		Description string         `json:"description"`
-		Settings    map[string]any `json:"settings"`
+	Plugins map[string]struct {
+		Enabled  bool            `json:"enabled"`
+		Settings json.RawMessage `json:"settings"`
 	} `json:"plugins"`
 }
 

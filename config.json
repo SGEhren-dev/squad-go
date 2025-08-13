@@ -13,20 +13,16 @@
         "port": "10256",
         "password": ""
     },
-    "plugins": [
-        {
+    "plugins": {
+        "FogOfWar": {
             "enabled": false,
-            "name": "FogOfWar",
-            "description": "Automate setting the FogOfWar mode.",
             "settings": {
                 "delay": 5,
                 "mode": 1
             }
         },
-        {
+        "AutomatedBroadcast": {
             "enabled": false,
-            "name": "AutomatedBroadcast",
-            "description": "Automates broadcast messages.",
             "settings": {
                 "messages": [
                     "This is a test broadcast.",
@@ -36,5 +32,5 @@
                 "delay": 5
             }
         }
-    ]
+    }
 }
