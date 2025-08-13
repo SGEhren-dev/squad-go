@@ -13,6 +13,9 @@
         "port": "10256",
         "password": ""
     },
+    "discord": {
+        "token": ""
+    },
     "plugins": {
         "FogOfWar": {
             "enabled": false,
@@ -30,6 +33,12 @@
                     "What about ANOTHER test broadcast?"
                 ],
                 "delay": 5
+            }
+        },
+        "DiscordAdminBroadcast": {
+            "enabled": true,
+            "settings": {
+                "channel": ""
             }
         }
     }

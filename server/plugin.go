@@ -1,8 +1,11 @@
 package server
 
 import (
+	"github.com/bwmarrin/discordgo"
 	"github.com/charmbracelet/log"
 )
+
+// #region Plugin
 
 type Plugin struct {
 	Enabled     bool
@@ -19,24 +22,50 @@ type IPlugin interface {
 
 func (plugin *Plugin) Boot() {}
 
+func (plugin *Plugin) GetBase() *Plugin {
+	return plugin
+}
+
 func (plugin *Plugin) LogWithPrefix(message any) {
 	log.WithPrefix("[" + plugin.Name + "]").Info(message)
 }
 
 func (plugin *Plugin) Shutdown() {}
 
-// #region Getters and Setters
+// #endregion
 
-func (plugin *Plugin) GetBase() *Plugin {
-	return plugin
+// #region Discord Plugin
+
+type DiscordPlugin struct {
+	Plugin
+	discordClient *discordgo.Session
 }
 
-func (plugin *Plugin) SetSquadServer(server *SquadServer) {
-	if server == plugin.SquadServer {
-		return
+type IDiscordPlugin interface {
+	IPlugin
+	SendMessage(string)
+}
+
+func (plugin *DiscordPlugin) Boot() {}
+
+func (plugin *DiscordPlugin) SetupDiscordClient() {
+	discord, err := discordgo.New("Bot " + plugin.SquadServer.Config.Discord.Token)
+
+	if err != nil {
+		plugin.LogWithPrefix("Failed to initialize Discord client")
 	}
 
-	plugin.SquadServer = server
+	plugin.discordClient = discord
+
+	err = discord.Open()
+
+	if err != nil {
+		plugin.LogWithPrefix("Failed to open Discord connection")
+	}
+}
+
+func (plugin *DiscordPlugin) Shutdown() {
+	plugin.discordClient.Close()
 }
 
 // #endregion
