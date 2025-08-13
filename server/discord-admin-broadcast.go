@@ -14,7 +14,7 @@ type DiscordAdminBroadcastSettings struct {
 }
 
 type DiscordAdminBroadcastPlugin struct {
-	DiscordPlugin
+	Plugin
 	settings DiscordAdminBroadcastSettings
 }
 
@@ -29,13 +29,10 @@ func init() {
 		}
 
 		return &DiscordAdminBroadcastPlugin{
-			DiscordPlugin: DiscordPlugin{
-				Plugin: Plugin{
-					Name:        name,
-					Description: "Send all admin broadcasts to Discord.",
-					SquadServer: server,
-				},
-				discordClient: nil,
+			Plugin: Plugin{
+				Name:        name,
+				Description: "Send all admin broadcasts to Discord.",
+				SquadServer: server,
 			},
 			settings: settings,
 		}
@@ -43,16 +40,14 @@ func init() {
 }
 
 func (plugin *DiscordAdminBroadcastPlugin) Boot() {
-	plugin.SetupDiscordClient()
-
 	plugin.SquadServer.Parser.Emitter.On(events.ADMIN_BROADCAST, func(payload any) {
 		data := payload.(parser.AdminBroadcast)
 
-		if plugin.discordClient == nil {
+		if plugin.SquadServer.Discord == nil {
 			return
 		}
 
-		plugin.discordClient.ChannelMessageSendEmbed(plugin.settings.Channel, &discordgo.MessageEmbed{
+		plugin.SquadServer.Discord.ChannelMessageSendEmbed(plugin.settings.Channel, &discordgo.MessageEmbed{
 			Title:       "Admin Broadcast Sent",
 			Description: fmt.Sprintf("Admin '%s' sent a broadcast", data.From),
 			Timestamp:   data.Time,
