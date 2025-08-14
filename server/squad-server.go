@@ -1,27 +1,30 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"squad-go/configuration"
 	"squad-go/parser"
 
 	rcon "github.com/SquadGO/squad-rcon-go/v2"
 	"github.com/SquadGO/squad-rcon-go/v2/rconEvents"
+	"github.com/SquadGO/squad-rcon-go/v2/rconTypes"
+	"github.com/bwmarrin/discordgo"
 	"github.com/charmbracelet/log"
 	"github.com/iamalone98/eventEmitter"
 	"gorm.io/driver/mysql"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
 type SquadServer struct {
 	Config   configuration.Config
 	Database *gorm.DB
+	Discord  *discordgo.Session
 	Emitter  eventEmitter.EventEmitter
 	Parser   *parser.LogParser
-	Players  map[string][]any
-	manager  *PluginManager
+	Players  map[string]rconTypes.Players
 	Rcon     *rcon.Rcon
+	manager  *PluginManager
 }
 
 func NewSquadServer() *SquadServer {
@@ -51,7 +54,7 @@ func (server *SquadServer) Boot() {
 
 	server.manager.Load(server)
 
-	server.setupDatabase()
+	server.initializeConnectors()
 	server.setupRcon()
 	server.manager.Boot()
 	server.Parser.ParseLogFile(server.Config.LogFilePath)
@@ -72,49 +75,68 @@ func (server *SquadServer) Shutdown() {
 	log.Info("Squad server shutdown successfully.")
 }
 
-func (server *SquadServer) setupDatabase() {
-	log.Info("Setting up database connection")
-	dialect := server.Config.Database.Dialect
-	database := server.Config.Database.Name
+func (server *SquadServer) initializeConnectors() {
+	for connector, config := range server.Config.Connectors {
+		switch connector {
+		case "discord":
+			{
+				var token string
 
-	switch dialect {
-	case "sqlite":
-		{
-			db, err := gorm.Open(sqlite.Open(database+".db"), &gorm.Config{})
+				if err := json.Unmarshal(config, &token); err != nil {
+					continue
+				}
 
-			if err != nil {
-				log.Error("Failed to initialize Database.")
+				discord, err := discordgo.New("Bot " + token)
 
-				return
+				if err != nil {
+					log.Errorf("An error occurred when initializing the Discord connector: %s", err.Error())
+
+					continue
+				}
+
+				server.Discord = discord
+
+				err = server.Discord.Open()
+
+				if err != nil {
+					log.Errorf("An error occurred when initializing the Discord connector: %s", err.Error())
+
+					continue
+				}
+
+				break
 			}
 
-			server.Database = db
+		case "mysql":
+			{
+				var databaseConfig DatabaseConnector
 
-			break
-		}
+				if err := json.Unmarshal(config, &databaseConfig); err != nil {
+					continue
+				}
 
-	case "mysql":
-		{
-			username := server.Config.Database.Username
-			password := server.Config.Database.Password
-			hostname := server.Config.Database.Host
-			port := server.Config.Database.Port
-			dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, hostname, port, database)
-			db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+				username := databaseConfig.Username
+				password := databaseConfig.Password
+				hostname := databaseConfig.Hostname
+				database := databaseConfig.DatabaseName
+				port := databaseConfig.Port
+				dsn := fmt.Sprintf("%s:%s@tcp(%s:%v)/%s?charset=utf8mb4&parseTime=True&loc=Local", username, password, hostname, port, database)
+				db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
-			if err != nil {
-				log.Error("Failed to initialize Database.")
+				if err != nil {
+					log.Errorf("Failed to initialize Database: %s", err.Error())
 
-				return
+					return
+				}
+
+				server.Database = db
+
+				break
 			}
 
-			server.Database = db
-
-			break
+		default:
+			log.Infof("Unknown connector %s", connector)
 		}
-
-	default:
-		log.Warn("An unknown dialect was used: " + dialect)
 	}
 }
 
