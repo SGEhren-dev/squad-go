@@ -39,6 +39,6 @@ var PlayerDamagedParser = Parser{
 			Weapon:                   matches[8],
 		}
 
-		parser.Emitter.Emit(events.PLAYER_DAMAGED, payload)
+		parser.Emit(events.PLAYER_DAMAGED, payload)
 	},
 }

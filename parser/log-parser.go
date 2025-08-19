@@ -15,14 +15,14 @@ type Parser struct {
 }
 
 type LogParser struct {
-	Emitter    eventEmitter.EventEmitter
+	eventEmitter.EventEmitter
 	TailHandle *follower.Follower
 	Rules      []*Parser
 }
 
 func NewLogParser() *LogParser {
 	newParser := LogParser{
-		Emitter: eventEmitter.NewEventEmitter(),
+		EventEmitter: eventEmitter.NewEventEmitter(),
 		Rules: []*Parser{
 			&AdminBroadcastParser,
 			&DeployableDamagedParser,

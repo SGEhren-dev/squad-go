@@ -31,6 +31,6 @@ var ServerTickRateParser = Parser{
 			Time:     matches[1],
 		}
 
-		parser.Emitter.Emit(events.SERVER_TICK_RATE, payload)
+		parser.Emit(events.SERVER_TICK_RATE, payload)
 	},
 }

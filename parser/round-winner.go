@@ -22,6 +22,6 @@ var RoundWinnerParser = Parser{
 			Winner:  matches[3],
 		}
 
-		parser.Emitter.Emit(events.ROUND_WINNER, payload)
+		parser.Emit(events.ROUND_WINNER, payload)
 	},
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"squad-go/configuration"
+	"squad-go/layers"
 	"squad-go/parser"
 
 	rcon "github.com/SquadGO/squad-rcon-go/v2"
@@ -17,33 +18,34 @@ import (
 )
 
 type SquadServer struct {
+	eventEmitter.EventEmitter
 	Config   configuration.Config
 	Database *gorm.DB
 	Discord  *discordgo.Session
 	Emitter  eventEmitter.EventEmitter
+	Layers   *layers.Layers
 	Parser   *parser.LogParser
 	Players  map[string]rconTypes.Players
 	Rcon     *rcon.Rcon
 	manager  *PluginManager
 }
 
-func NewSquadServer() *SquadServer {
+func NewSquadServer() SquadServer {
 	squadServer := SquadServer{
-		Config:  configuration.Config{},
-		Emitter: eventEmitter.NewEventEmitter(),
+		Config:       configuration.Config{},
+		EventEmitter: eventEmitter.NewEventEmitter(),
+		Layers:       layers.New(),
 	}
 
 	err := squadServer.Config.LoadConfig()
 
 	if err != nil {
-		log.Error("Failed to create SquadServer due to config failure.")
-
-		return nil
+		panic(err)
 	}
 
 	log.Info("Configuration loaded, starting Squad Server")
 
-	return &squadServer
+	return squadServer
 }
 
 func (server *SquadServer) Boot() {
@@ -152,7 +154,7 @@ func (server *SquadServer) setupRcon() {
 	})
 
 	if err != nil {
-		log.Error("Failed to setup RCON.")
+		log.WithPrefix("[RCON]").Error("Failed to setup RCON.")
 
 		return
 	}
@@ -174,4 +176,10 @@ func (server *SquadServer) setupRcon() {
 	rconHandle.Emitter.On(rconEvents.ERROR, func(err any) {
 		log.WithPrefix("[RCON]").Info("Error: " + err.(error).Error())
 	})
+
+	log.WithPrefix("[RCON]").Infof(
+		"Connection established to %s:%s",
+		server.Config.Rcon.Host,
+		server.Config.Rcon.Port,
+	)
 }
