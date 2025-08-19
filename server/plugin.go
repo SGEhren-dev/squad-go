@@ -4,6 +4,8 @@ import (
 	"github.com/charmbracelet/log"
 )
 
+// #region Plugin
+
 type Plugin struct {
 	Enabled     bool
 	Name        string
@@ -19,24 +21,14 @@ type IPlugin interface {
 
 func (plugin *Plugin) Boot() {}
 
+func (plugin *Plugin) GetBase() *Plugin {
+	return plugin
+}
+
 func (plugin *Plugin) LogWithPrefix(message any) {
 	log.WithPrefix("[" + plugin.Name + "]").Info(message)
 }
 
 func (plugin *Plugin) Shutdown() {}
-
-// #region Getters and Setters
-
-func (plugin *Plugin) GetBase() *Plugin {
-	return plugin
-}
-
-func (plugin *Plugin) SetSquadServer(server *SquadServer) {
-	if server == plugin.SquadServer {
-		return
-	}
-
-	plugin.SquadServer = server
-}
 
 // #endregion
