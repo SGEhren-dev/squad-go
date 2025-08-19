@@ -24,6 +24,6 @@ var PlayerRevivedParser = Parser{
 			Victim:  matches[5],
 		}
 
-		parser.Emitter.Emit(events.PLAYER_REVIVED, payload)
+		parser.Emit(events.PLAYER_REVIVED, payload)
 	},
 }

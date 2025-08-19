@@ -30,6 +30,6 @@ var DeployableDamagedParser = Parser{
 			Weapon:     matches[7],
 		}
 
-		parser.Emitter.Emit(events.DEPLOYABLE_DAMAGED, payload)
+		parser.Emit(events.DEPLOYABLE_DAMAGED, payload)
 	},
 }

@@ -24,6 +24,6 @@ var NewGameParser = Parser{
 			Time:      matches[1],
 		}
 
-		parser.Emitter.Emit(events.NEW_GAME, payload)
+		parser.Emit(events.NEW_GAME, payload)
 	},
 }

@@ -24,6 +24,6 @@ var PlayerDisconnectedParser = Parser{
 			Time:             matches[1],
 		}
 
-		parser.Emitter.Emit(events.PLAYER_DISCONNECTED, payload)
+		parser.Emit(events.PLAYER_DISCONNECTED, payload)
 	},
 }

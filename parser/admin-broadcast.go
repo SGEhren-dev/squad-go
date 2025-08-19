@@ -20,6 +20,6 @@ var AdminBroadcastParser = Parser{
 			Time:    matches[1],
 		}
 
-		parser.Emitter.Emit(events.ADMIN_BROADCAST, payload)
+		parser.Emit(events.ADMIN_BROADCAST, payload)
 	},
 }

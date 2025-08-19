@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 )
 
@@ -50,7 +49,7 @@ func (plugin *FogOfWarPlugin) Boot() {
 			select {
 			case <-plugin.tickerHandle.C:
 				if plugin.SquadServer.Rcon != nil {
-					plugin.SquadServer.Rcon.Execute(fmt.Sprintf("AdminSetFogOfWar %v", plugin.settings.Mode))
+					// plugin.SquadServer.Rcon.Execute(fmt.Sprintf("AdminSetFogOfWar %v", plugin.settings.Mode))
 				}
 			case <-plugin.tickerChannel:
 				plugin.tickerHandle.Stop()

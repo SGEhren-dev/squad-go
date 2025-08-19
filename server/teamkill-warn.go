@@ -12,7 +12,7 @@ type TeamKillWarnPlugin struct {
 func NewTeamKillWarnPlugin(server *SquadServer) *TeamKillWarnPlugin {
 	return &TeamKillWarnPlugin{
 		Plugin{
-			Enabled:     true,
+			Enabled:     false,
 			Name:        "TeamKillWarn",
 			Description: "Warns players when they team kill.",
 			SquadServer: server,
@@ -21,7 +21,7 @@ func NewTeamKillWarnPlugin(server *SquadServer) *TeamKillWarnPlugin {
 }
 
 func (plugin *TeamKillWarnPlugin) Boot() {
-	plugin.SquadServer.Parser.Emitter.On(events.PLAYER_CONNECTED, plugin.HandlePlayerConnected)
+	plugin.SquadServer.Parser.On(events.PLAYER_CONNECTED, plugin.HandlePlayerConnected)
 }
 
 func (plugin *TeamKillWarnPlugin) HandlePlayerConnected(payload any) {
@@ -31,5 +31,5 @@ func (plugin *TeamKillWarnPlugin) HandlePlayerConnected(payload any) {
 }
 
 func (plugin *TeamKillWarnPlugin) Shutdown() {
-	plugin.SquadServer.Parser.Emitter.RemoveListener(events.PLAYER_CONNECTED, plugin.HandlePlayerConnected)
+	plugin.SquadServer.Parser.RemoveListener(events.PLAYER_CONNECTED, plugin.HandlePlayerConnected)
 }

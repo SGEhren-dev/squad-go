@@ -28,6 +28,6 @@ var PlayerDiedParser = Parser{
 			WoundTime: matches[1],
 		}
 
-		parser.Emitter.Emit(events.PLAYER_DIED, payload)
+		parser.Emit(events.PLAYER_DIED, payload)
 	},
 }

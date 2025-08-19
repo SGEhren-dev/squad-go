@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"squad-go/configuration"
+	"squad-go/layers"
 	"squad-go/parser"
 
 	rcon "github.com/SquadGO/squad-rcon-go/v2"
@@ -17,6 +18,7 @@ import (
 )
 
 type SquadServer struct {
+	eventEmitter.EventEmitter
 	Config   configuration.Config
 	Database *gorm.DB
 	Discord  *discordgo.Session
@@ -27,23 +29,22 @@ type SquadServer struct {
 	manager  *PluginManager
 }
 
-func NewSquadServer() *SquadServer {
+func NewSquadServer() SquadServer {
 	squadServer := SquadServer{
-		Config:  configuration.Config{},
-		Emitter: eventEmitter.NewEventEmitter(),
+		Config:       configuration.Config{},
+		EventEmitter: eventEmitter.NewEventEmitter(),
+		Layers:       layers.New(),
 	}
 
 	err := squadServer.Config.LoadConfig()
 
 	if err != nil {
-		log.Error("Failed to create SquadServer due to config failure.")
-
-		return nil
+		panic(err)
 	}
 
 	log.Info("Configuration loaded, starting Squad Server")
 
-	return &squadServer
+	return squadServer
 }
 
 func (server *SquadServer) Boot() {

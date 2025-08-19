@@ -30,6 +30,6 @@ var PlayerConnectedParser = Parser{
 			Time:             matches[1],
 		}
 
-		parser.Emitter.Emit(events.PLAYER_CONNECTED, payload)
+		parser.Emit(events.PLAYER_CONNECTED, payload)
 	},
 }
