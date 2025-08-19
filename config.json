@@ -1,9 +1,9 @@
 {
     "logFilePath": "SquadGame.log",
     "rcon": {
-        "host": "198.133.237.16",
+        "host": "localhost",
         "port": "10256",
-        "password": "G0L_2025"
+        "password": ""
     },
     "connectors": {
         "discord": "",

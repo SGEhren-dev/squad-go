@@ -2,7 +2,6 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 )
 
@@ -51,7 +50,7 @@ func (plugin *AutomatedBroadcastPlugin) Boot() {
 			select {
 			case <-plugin.tickerHandle.C:
 				if plugin.SquadServer.Rcon != nil {
-					plugin.SquadServer.Rcon.Execute(fmt.Sprintf("AdminBroadcast %s", messages[lastDispatched]))
+					// plugin.SquadServer.Rcon.Execute(fmt.Sprintf("AdminBroadcast %s", messages[lastDispatched]))
 				}
 
 				if lastDispatched+1 >= len(messages) {

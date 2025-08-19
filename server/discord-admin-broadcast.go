@@ -40,10 +40,10 @@ func init() {
 }
 
 func (plugin *DiscordAdminBroadcastPlugin) Boot() {
-	plugin.SquadServer.Parser.Emitter.On(events.ADMIN_BROADCAST, func(payload any) {
+	plugin.SquadServer.Parser.On(events.ADMIN_BROADCAST, func(payload any) {
 		data := payload.(parser.AdminBroadcast)
 
-		if plugin.SquadServer.Discord == nil {
+		if plugin.SquadServer.Discord == nil && len(plugin.settings.Channel) > 0 {
 			return
 		}
 

@@ -23,6 +23,7 @@ type SquadServer struct {
 	Database *gorm.DB
 	Discord  *discordgo.Session
 	Emitter  eventEmitter.EventEmitter
+	Layers   *layers.Layers
 	Parser   *parser.LogParser
 	Players  map[string]rconTypes.Players
 	Rcon     *rcon.Rcon
@@ -153,7 +154,7 @@ func (server *SquadServer) setupRcon() {
 	})
 
 	if err != nil {
-		log.Error("Failed to setup RCON.")
+		log.WithPrefix("[RCON]").Error("Failed to setup RCON.")
 
 		return
 	}
@@ -175,4 +176,10 @@ func (server *SquadServer) setupRcon() {
 	rconHandle.Emitter.On(rconEvents.ERROR, func(err any) {
 		log.WithPrefix("[RCON]").Info("Error: " + err.(error).Error())
 	})
+
+	log.WithPrefix("[RCON]").Infof(
+		"Connection established to %s:%s",
+		server.Config.Rcon.Host,
+		server.Config.Rcon.Port,
+	)
 }
